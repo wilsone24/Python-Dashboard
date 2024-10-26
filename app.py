@@ -6,13 +6,16 @@ from sqlalchemy import create_engine
 import pydeck as pdk
 import plotly.express as px
 from streamlit_extras.metric_cards import style_metric_cards
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 # Database connection data
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'WmEo.1739',
-    'database': 'chicagocrimes'
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_DATABASE')
 }
 
 # Create connection string using pymysql
@@ -25,9 +28,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-
-
 
 # Page styling
 st.markdown(""" 
@@ -191,14 +191,21 @@ df_graph_scatter = pd.read_sql(query_scatter, con=engine)
 df_map1 = pd.read_sql(query_map1, con=engine)
 df_map1 = df_map1.rename(columns={'Latitude': 'latitude', 'Longitude': 'longitude'})
 df_graph_3dmap = pd.read_sql(query_map3d, con=engine).dropna()
-count_1 = df_count1['crime_count'].values[0]
-count_2 = df_count2['PrimaryType'].values[0]
+
+if not df_count1.empty:
+    count_1 = df_count1['crime_count'].values[0]
+else:
+    count_1 = "No Data"
+
+if not df_count2.empty:
+    count_2 = df_count2['PrimaryType'].values[0]
+else:
+    count_2 = "0"
 
 
 crime_types = df_map1['PrimaryType'].unique()
 color_map = {crime: [i * 25 % 255, i * 50 % 255, i * 75 % 255] for i, crime in enumerate(crime_types)}
 df_map1['color'] = df_map1['PrimaryType'].map(color_map)
-
 
 st.snow()
 
