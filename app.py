@@ -11,16 +11,14 @@ import os
 
 load_dotenv()
 # Database connection data
-db_config = {
-    'host': os.getenv('DB_HOST'),
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASSWORD'),
-    'database': os.getenv('DB_DATABASE'),
-    'port': os.getenv('DB_PORT')
-}
+db_host = 'localhost'
+db_user = 'root'
+db_password = 'WmEo.1739'
+db_database = 'chicagocrimes'
+db_port = 3306
 
 # Create connection string using pymysql
-connection_string = f"mysql+pymysql://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
+connection_string = f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_database}'
 engine = create_engine(connection_string)
 
 st.set_page_config(
@@ -170,15 +168,15 @@ ORDER BY
 
 query_crimes_by_month = f"""
 SELECT 
-    DATE_FORMAT(Date, '%Y-%m') AS Month,
-    COUNT(*) AS TotalRows
+    DATE_FORMAT(Date, '%Y-%m') AS month,
+    COUNT(*) AS crime_count
 FROM 
     crimes
 {where_clause}
 GROUP BY 
-    Month
+    month
 ORDER BY 
-    Month;
+    month;
 """
 
 query_map1 = f"""
@@ -204,14 +202,7 @@ df_graph_scatter = pd.read_sql(query_scatter, con=engine)
 df_map1 = pd.read_sql(query_map1, con=engine)
 df_map1 = df_map1.rename(columns={'Latitude': 'latitude', 'Longitude': 'longitude'})
 df_graph_3dmap = pd.read_sql(query_map3d, con=engine).dropna()
-
-
-
-try:
-    df_crimes_by_month = pd.read_sql(query_crimes_by_month, con=engine)
-except Exception as e:
-    st.error(f"Error fetching data: {str(e)}")
-    st.stop()  
+df_crimes_by_month = pd.read_sql(query_crimes_by_month, con=engine)
 
 if not df_count1.empty:
     count_1 = df_count1['crime_count'].values[0]
@@ -355,3 +346,26 @@ with col3[0]:
     ))
 
 col4 = st.columns((1), gap='medium')
+with col4[0]:
+    fig_monthly_crimes = px.bar(
+        df_crimes_by_month,
+        x='month',
+        y='crime_count',
+        title='Total Crimes by Month in Chicago (2023)',
+        labels={'month': 'Month', 'crime_count': 'Number of Crimes'},
+        color='crime_count',
+        color_continuous_scale=px.colors.sequential.Viridis
+    )
+    
+    # Configurar el diseño de la gráfica
+    fig_monthly_crimes.update_layout(
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font_color='black',
+        xaxis_title="Month",
+        yaxis_title="Number of Crimes",
+        margin={"r":0,"t":40,"l":0,"b":0}
+    )
+    
+    # Mostrar la gráfica en el dashboard
+    st.plotly_chart(fig_monthly_crimes, use_container_width=True)
