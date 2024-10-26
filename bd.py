@@ -1,54 +1,38 @@
-import os
 import pandas as pd
-import pymysql
-from sqlalchemy import create_engine
+import mysql.connector
+from mysql.connector import Error
 
-# Read the CSV file
+# Leer el archivo CSV
 df = pd.read_csv('Crimes2023.csv')
-
-# Ensure the date formats are correct
+# Asegúrate de que el formato de las fechas sea el correcto
 df['Date'] = pd.to_datetime(df['Date'], format='%m/%d/%Y %I:%M:%S %p', errors='coerce').dt.strftime('%Y-%m-%d %H:%M:%S')
 df['Updated On'] = pd.to_datetime(df['Updated On'], format='%m/%d/%Y %I:%M:%S %p', errors='coerce').dt.strftime('%Y-%m-%d %H:%M:%S')
 
-# Replace NaN values with None and check for any columns that don't match
+# Reemplazar valores NaN por None y verificar si hay columnas que no coinciden
 df = df.where(pd.notnull(df), None)
 print(df.head())
-
-# MySQL connection configuration using pymysql
+# Configuración de conexión a MySQL
 db_config = {
-    'host': os.getenv('DB_HOST'),
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASSWORD'),
-    'database': 'chicagocrimes',  # Use this database once it's created
-    'port': os.getenv('DB_PORT')
+    'host': 'localhost',
+    'user': 'root',  # Cambiado a root
+    'password': 'WmEo.1739',  # Contraseña actualizada
 }
 
 connection = None
 
 try:
-    # First, create the database
-    temp_connection = pymysql.connect(
-        host=db_config['host'],
-        user=db_config['user'],
-        password=db_config['password'],
-        port=int(db_config['port'])
-    )
-
-    with temp_connection.cursor() as cursor:
-        # Create the database if it does not exist
-        cursor.execute("CREATE DATABASE IF NOT EXISTS chicagocrimes")
-        print("Database 'chicagocrimes' created if it did not exist.")
+    # Conexión a la base de datos
+    connection = mysql.connector.connect(**db_config)
     
-    temp_connection.close()
-
-    # Connect to the database that has been created
-    connection_string = f"mysql+pymysql://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['database']}"
-    engine = create_engine(connection_string)
-
-    with engine.connect() as connection:
-        cursor = connection.connection.cursor()
-
-        # Create the table
+    if connection.is_connected():
+        cursor = connection.cursor()
+        
+        # Crear base de datos si no existe
+        cursor.execute("CREATE DATABASE IF NOT EXISTS chicagocrimes")
+        cursor.execute("USE chicagocrimes")
+        print("Base de datos 'chicagocrimes' lista para usar.")
+        
+        # Crear tabla
         create_table_query = """
         CREATE TABLE IF NOT EXISTS crimes (
             id INT PRIMARY KEY,
@@ -75,17 +59,17 @@ try:
         )
         """
         cursor.execute(create_table_query)
-
-        # Prepare the insertion query
+        
+        # Preparar la consulta de inserción
         insert_query = """
         INSERT INTO crimes (id, CaseNumber, `Date`, Block, `PrimaryType`, `Description`, LocationDescription,
           Arrest, Domestic, Beat, District, Ward, CommunityArea, FbiCode, xCoordinate, yCoordinate, Year, `UpdatedOn`, `Latitude`, `Longitude`, `Location`)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-
-        # Insert data row by row
+        
+        # Insertar datos fila por fila
         for _, row in df.iterrows():
-            # Ensure each value in the row is 'None' if it has no data
+            # Asegurarse de que cada valor en la fila es 'None' si no tiene datos
             values = tuple(None if pd.isna(x) else x for x in [
                 row['ID'], row['Case Number'], row['Date'], row['Block'], row['Primary Type'],
                 row['Description'], row['Location Description'], row['Arrest'], row['Domestic'],
@@ -94,16 +78,17 @@ try:
                 row['Latitude'], row['Longitude'], row['Location']
             ])
             cursor.execute(insert_query, values)
-
-        # Commit the changes
+        
+        # Confirmar los cambios
         connection.commit()
-        print("Data inserted successfully")
+        print("Datos insertados exitosamente")
 
-except Exception as e:
+except Error as e:
     print(f"Error: {e}")
 
 finally:
-    # Close the connection if necessary
-    if connection is not None:
-        connection.close()
-        print("MySQL connection closed")
+    # Este bloque se ejecutará sin importar si hubo un error o no
+    if connection is not None and connection.is_connected():
+        cursor.close()  # Cerrar cursor
+        connection.close()  # Cerrar conexión
+        print("Conexión MySQL cerrada")
