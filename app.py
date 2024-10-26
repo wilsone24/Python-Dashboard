@@ -168,6 +168,18 @@ ORDER BY
     crime_count DESC
 """
 
+query_crimes_by_month = f"""
+SELECT 
+    DATE_FORMAT(Date, '%Y-%m') AS Month,
+    COUNT(*) AS TotalRows
+FROM 
+    crimes
+{where_clause}
+GROUP BY 
+    Month
+ORDER BY 
+    Month;
+"""
 
 query_map1 = f"""
 SELECT 
@@ -193,6 +205,14 @@ df_map1 = pd.read_sql(query_map1, con=engine)
 df_map1 = df_map1.rename(columns={'Latitude': 'latitude', 'Longitude': 'longitude'})
 df_graph_3dmap = pd.read_sql(query_map3d, con=engine).dropna()
 
+
+
+try:
+    df_crimes_by_month = pd.read_sql(query_crimes_by_month, con=engine)
+except Exception as e:
+    st.error(f"Error fetching data: {str(e)}")
+    st.stop()  
+
 if not df_count1.empty:
     count_1 = df_count1['crime_count'].values[0]
 else:
@@ -203,11 +223,11 @@ if not df_count2.empty:
 else:
     count_2 = "0"
 
-
 crime_types = df_map1['PrimaryType'].unique()
 color_map = {crime: [i * 25 % 255, i * 50 % 255, i * 75 % 255] for i, crime in enumerate(crime_types)}
 df_map1['color'] = df_map1['PrimaryType'].map(color_map)
 
+print(df_crimes_by_month)
 st.snow()
 
 # Metrics Display
@@ -333,3 +353,5 @@ with col3[0]:
         initial_view_state=view_state,
         tooltip={"text": "Crimes Count: {elevationValue}"}
     ))
+
+col4 = st.columns((1), gap='medium')
