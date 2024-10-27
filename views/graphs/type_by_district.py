@@ -1,7 +1,7 @@
 import plotly.express as px
-import streamlit as st
 
-def graph(data):
+
+async def graph(data):
     fig = px.bar(
         data,
         x='District',
@@ -19,4 +19,4 @@ def graph(data):
         legend_title="Crime Type",
         hovermode='x unified'
     )
-    st.plotly_chart(fig, use_container_width=True)
+    return fig

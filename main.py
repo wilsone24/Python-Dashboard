@@ -1,3 +1,4 @@
+import asyncio
 import streamlit as st
 from sqlalchemy import create_engine
 
@@ -14,15 +15,15 @@ def connect_db():
     return create_engine(connection_string)
 
 
-def main():
+async def main():
     if 'db' not in st.session_state:
         print("Initializing database connection...")
         st.session_state.db = connect_db()
 
     # Crear una barra de navegación
     pages = [
-        st.Page("views/dashboard.py", title="Dashboard"),
         st.Page("views/about.py", title="About"),
+        st.Page("views/dashboard.py", title="Dashboard"),
     ]
 
     st.set_page_config(
@@ -36,4 +37,4 @@ def main():
     pg.run()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

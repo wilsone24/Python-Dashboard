@@ -1,11 +1,27 @@
+import asyncio
 import streamlit as st
 import pandas as pd
 from streamlit_extras.metric_cards import style_metric_cards
 from views.graphs import heatmap, monthly_crimes, common_crimes, type_by_district, distribution_map, crime_arrest
 
 
+def st_render(area, renderer, data: asyncio.Task):
+    with area:
+        renderer(data.result())
+
+
+# Plumbing to allow for parallel rendering
+def render_soon(dispatcher: asyncio.AbstractEventLoop, area, renderer, data: asyncio.Task):
+    dispatcher.call_soon(st_render, area, renderer, data)
+
+
+def plotly_renderer(data):
+    st.plotly_chart(data, use_container_width=True)
+
+
 def page():
     engine = st.session_state.db
+    dispatcher = asyncio.get_running_loop()
 
     # Page styling
     st.markdown(""" 
@@ -212,31 +228,36 @@ def page():
 
     # Bar Charts
     col1 = st.columns((1, 1), gap='medium')
-    with col1[0]:
-        common_crimes.graph(df_bar2)
+    cct = asyncio.create_task(common_crimes.graph(df_bar2))
+    cct.add_done_callback(lambda cc: render_soon(dispatcher, col1[0], plotly_renderer, cc))
 
-    with col1[1]:
-        type_by_district.graph(df_bar1)
+    tbdt = asyncio.create_task(type_by_district.graph(df_bar1))
+    tbdt.add_done_callback(lambda tbd: render_soon(dispatcher, col1[1], plotly_renderer, tbd))
 
-    # Scatter Plot and 3D Map
+    # Scatter Plot
     col2 = st.columns((1, 1), gap='medium')
-    with col2[0]:
-        crime_arrest.graph(df_graph_scatter)
+    spt = asyncio.create_task(crime_arrest.graph(df_graph_scatter))
+    spt.add_done_callback(lambda sp: render_soon(dispatcher, col2[0], plotly_renderer, sp))
 
+    # Distribution map
     with col2[1]:
         st.subheader("Distribution Map")
-        distribution_map.graph(df_map1)
+    dmt = asyncio.create_task(distribution_map.graph(df_map1))
+    dmt.add_done_callback(lambda dm: render_soon(dispatcher, col2[1], st.pydeck_chart, dm))
 
     # 3D Hexagon Layer
     col3 = st.columns(1, gap='medium')
     with col3[0]:
         st.subheader("Heatmap")
-        heatmap.graph(df_graph_3dmap)
+    hmt = asyncio.create_task(heatmap.graph(df_graph_3dmap))
+    hmt.add_done_callback(lambda hm: render_soon(dispatcher, col3[0], st.pydeck_chart, hm))
 
+    # Monthly
     col4 = st.columns(1, gap='medium')
     with col4[0]:
         st.subheader("Monthly Stats")
-        monthly_crimes.graph(df_crimes_by_month)
+    mct = asyncio.create_task(monthly_crimes.graph(df_crimes_by_month))
+    mct.add_done_callback(lambda mc: render_soon(dispatcher, col4[0], plotly_renderer, mc))
 
 
 page()

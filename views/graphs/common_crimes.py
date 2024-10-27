@@ -1,8 +1,7 @@
 import plotly.express as px
-import streamlit as st
 
 
-def graph(data):
+async def graph(data):
     fig = px.bar(
         data,
         x='crime_count',
@@ -21,4 +20,4 @@ def graph(data):
         yaxis_title="Crime Type",
         margin={"r": 0, "t": 40, "l": 0, "b": 0}
     )
-    st.plotly_chart(fig, use_container_width=True)
+    return fig

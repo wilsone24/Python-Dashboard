@@ -1,8 +1,7 @@
-import streamlit as st
 import plotly.express as px
 
 
-def graph(data):
+async def graph(data):
     fig_monthly_crimes = px.bar(
         data,
         x='month',
@@ -22,6 +21,4 @@ def graph(data):
         yaxis_title="Number of Crimes",
         margin={"r": 0, "t": 40, "l": 0, "b": 0}
     )
-
-    # Mostrar la gráfica en el dashboard
-    st.plotly_chart(fig_monthly_crimes, use_container_width=True)
+    return fig_monthly_crimes

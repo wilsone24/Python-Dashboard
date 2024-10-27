@@ -1,8 +1,7 @@
 import pydeck as pdk
-import streamlit as st
 
 
-def graph(data):
+async def graph(data):
     layer = pdk.Layer(
         'HexagonLayer',
         data=data,
@@ -20,8 +19,8 @@ def graph(data):
         zoom=11,
         pitch=50
     )
-    st.pydeck_chart(pdk.Deck(
+    return pdk.Deck(
         layers=[layer],
         initial_view_state=view_state,
         tooltip={"text": "Crimes Count: {elevationValue}"}
-    ))
+    )

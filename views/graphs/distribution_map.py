@@ -1,8 +1,7 @@
 import pydeck as pdk
-import streamlit as st
 
 
-def graph(data):
+async def graph(data):
     layer = pdk.Layer(
         'ScatterplotLayer',
         data=data,
@@ -17,9 +16,10 @@ def graph(data):
         zoom=10,
         pitch=0,
     )
-    st.pydeck_chart(pdk.Deck(
+
+    return pdk.Deck(
         layers=[layer],
         initial_view_state=view_state,
         map_style="mapbox://styles/mapbox/light-v10",
         tooltip={"text": "{PrimaryType}\nYear: {Year}\nArrest: {Arrest}"}
-    ))
+    )

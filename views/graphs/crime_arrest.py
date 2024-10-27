@@ -1,8 +1,7 @@
 import plotly.express as px
-import streamlit as st
 
 
-def graph(data):
+async def graph(data):
     fig = px.scatter(
         data,
         x='crime_count',
@@ -24,4 +23,4 @@ def graph(data):
     )
     fig.update_traces(marker=dict(size=10, opacity=0.8, line=dict(width=1, color='lightgray')),
                       selector=dict(mode='markers'))
-    st.plotly_chart(fig, use_container_width=True)
+    return fig
