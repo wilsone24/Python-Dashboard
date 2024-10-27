@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
-import pydeck as pdk
-import plotly.express as px
 from streamlit_extras.metric_cards import style_metric_cards
+from views.graphs import heatmap, monthly_crimes, common_crimes, type_by_district, distribution_map, crime_arrest
 
 
 def page():
@@ -214,146 +213,30 @@ def page():
     # Bar Charts
     col1 = st.columns((1, 1), gap='medium')
     with col1[0]:
-        fig = px.bar(
-            df_bar2,
-            x='crime_count',
-            y='PrimaryType',
-            title='Most Common Crime Types in Chicago',
-            labels={'crime_count': 'Crime Count'},
-            orientation='h',
-            color='crime_count',
-            color_continuous_scale=px.colors.sequential.Viridis
-        )
-        fig.update_layout(
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            font_color='black',
-            xaxis_title="Crime Count",
-            yaxis_title="Crime Type",
-            margin={"r": 0, "t": 40, "l": 0, "b": 0}
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        common_crimes.graph(df_bar2)
 
     with col1[1]:
-        fig = px.bar(
-            df_bar1,
-            x='District',
-            y='crime_count',
-            color='crime_type',
-            title='Total Crimes by District and Crime Type',
-            labels={'District': 'District', 'crime_count': 'Crime Count', 'crime_type': 'Crime Type'},
-            barmode='stack',
-            color_discrete_sequence=px.colors.sequential.Plasma
-        )
-        fig.update_layout(
-            template='plotly_dark',
-            xaxis_title="District",
-            yaxis_title="Crime Count",
-            legend_title="Crime Type",
-            hovermode='x unified'
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        type_by_district.graph(df_bar1)
 
     # Scatter Plot and 3D Map
     col2 = st.columns((1, 1), gap='medium')
     with col2[0]:
-        fig = px.scatter(
-            df_graph_scatter,
-            x='crime_count',
-            y='arrest_count',
-            color='PrimaryType',
-            title='Crime and Arrest Correlation',
-            labels={'crime_count': 'Crime Count', 'arrest_count': 'Arrest Count', 'PrimaryType': 'Crime Type'},
-            color_discrete_sequence=px.colors.sequential.Viridis
-        )
-        fig.update_layout(
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            font_color='black',
-            xaxis_title="Crime Count",
-            yaxis_title="Arrest Count",
-            legend_title="Crime Type",
-            xaxis=dict(showgrid=True, gridcolor='lightgray', gridwidth=0.5),
-            yaxis=dict(showgrid=True, gridcolor='lightgray', gridwidth=0.5)
-        )
-        fig.update_traces(marker=dict(size=10, opacity=0.8, line=dict(width=1, color='lightgray')),
-                          selector=dict(mode='markers'))
-        st.plotly_chart(fig, use_container_width=True)
+        crime_arrest.graph(df_graph_scatter)
 
     with col2[1]:
-        st.subheader("Crime Distribution Map")
-        layer = pdk.Layer(
-            'ScatterplotLayer',
-            data=df_map1,
-            get_position='[longitude, latitude]',
-            get_color='color',
-            get_radius=100,
-            pickable=True,
-        )
-        view_state = pdk.ViewState(
-            latitude=df_map1['latitude'].mean(),
-            longitude=df_map1['longitude'].mean(),
-            zoom=10,
-            pitch=0,
-        )
-        st.pydeck_chart(pdk.Deck(
-            layers=[layer],
-            initial_view_state=view_state,
-            map_style="mapbox://styles/mapbox/light-v10",
-            tooltip={"text": "{PrimaryType}\nYear: {Year}\nArrest: {Arrest}"}
-        ))
+        st.subheader("Distribution Map")
+        distribution_map.graph(df_map1)
 
     # 3D Hexagon Layer
-    col3 = st.columns((1), gap='medium')
+    col3 = st.columns(1, gap='medium')
     with col3[0]:
-        st.subheader("Crimes HeatMap")
-        layer = pdk.Layer(
-            'HexagonLayer',
-            data=df_graph_3dmap,
-            get_position='[longitude, latitude]',
-            radius=200,
-            elevation_scale=4,
-            elevation_range=[0, 1000],
-            extruded=True,
-            pickable=True,
-            coverage=1
-        )
-        view_state = pdk.ViewState(
-            latitude=41.8781,
-            longitude=-87.6298,
-            zoom=11,
-            pitch=50
-        )
-        st.pydeck_chart(pdk.Deck(
-            layers=[layer],
-            initial_view_state=view_state,
-            tooltip={"text": "Crimes Count: {elevationValue}"}
-        ))
+        st.subheader("Heatmap")
+        heatmap.graph(df_graph_3dmap)
 
-    col4 = st.columns((1), gap='medium')
+    col4 = st.columns(1, gap='medium')
     with col4[0]:
-        fig_monthly_crimes = px.bar(
-            df_crimes_by_month,
-            x='month',
-            y='crime_count',
-            title='Total Crimes by Month in Chicago (2023)',
-            labels={'month': 'Month', 'crime_count': 'Number of Crimes'},
-            color='crime_count',
-            color_continuous_scale=px.colors.sequential.Viridis
-        )
-
-        # Configurar el diseño de la gráfica
-        fig_monthly_crimes.update_layout(
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            font_color='black',
-            xaxis_title="Month",
-            yaxis_title="Number of Crimes",
-            margin={"r": 0, "t": 40, "l": 0, "b": 0}
-        )
-
-        # Mostrar la gráfica en el dashboard
-        st.plotly_chart(fig_monthly_crimes, use_container_width=True)
+        st.subheader("Monthly Stats")
+        monthly_crimes.graph(df_crimes_by_month)
 
 
 page()
