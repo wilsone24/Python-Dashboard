@@ -6,11 +6,8 @@ from sqlalchemy import create_engine
 import pydeck as pdk
 import plotly.express as px
 from streamlit_extras.metric_cards import style_metric_cards
-from dotenv import load_dotenv
-import os
 
-load_dotenv()
-# Database connection data
+
 db_host = 'localhost'
 db_user = 'root'
 db_password = 'WmEo.1739'
