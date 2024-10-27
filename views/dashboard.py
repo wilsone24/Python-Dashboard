@@ -30,22 +30,28 @@ def page():
     </style>
     """, unsafe_allow_html=True)
 
-    # Queries to fetch data
-    query_fbicode = "SELECT DISTINCT FbiCode FROM crimes"
-    query_lodes = "SELECT DISTINCT LocationDescription FROM crimes"
-    df_fbicodes = pd.read_sql(query_fbicode, con=engine)
-    df_lodes = pd.read_sql(query_lodes, con=engine)
-    fbi_codes = df_fbicodes['FbiCode'].tolist()
-    lo_des = df_lodes['LocationDescription'].tolist()
+    if 'filters' not in st.session_state:
+        print("Updating filters...")
+
+        query_fbi_codes = "SELECT DISTINCT FbiCode FROM crimes"
+        query_locations = "SELECT DISTINCT LocationDescription FROM crimes"
+        df_fbi_codes = pd.read_sql(query_fbi_codes, con=engine)
+        df_locations = pd.read_sql(query_locations, con=engine)
+
+        st.session_state.filters = {
+            'fbi_codes': ['No Selection'] + df_fbi_codes['FbiCode'].tolist(),
+            'locations': ['No Selection'] + df_locations['LocationDescription'].tolist()
+        }
 
     colfilter = st.columns((1, 1, 1), gap='medium')
     with colfilter[0]:
-        selected_fbi_code = st.selectbox("Select an FBI Code Type", ['No Selection'] + fbi_codes)
+        selected_fbi_code = st.selectbox("Select an FBI Code Type", st.session_state.filters['fbi_codes'])
     with colfilter[1]:
         selected_dom_arres = st.multiselect("Select Types of Crimes to Display", ["Arrest", "Domestic", "No Selection"],
                                             default=["No Selection"])
     with colfilter[2]:
-        selected_location_description = st.selectbox("Select a Location Type:", ['No Selection'] + lo_des)
+        selected_location_description = st.selectbox("Select a Location Type:", st.session_state.filters['locations'])
+
     filters = []
 
     # Filtro por FBI Code
@@ -82,7 +88,7 @@ def page():
     SELECT 
         PrimaryType,
         COUNT(*) AS crime_count,
-        SUM(CASE WHEN Arrest THEN 1 ELSE 0 END) AS arrest_count
+        SUM(IF(Arrest, 1, 0)) AS arrest_count
     FROM 
         crimes
     {where_clause}
