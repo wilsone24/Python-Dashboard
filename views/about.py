@@ -1,10 +1,10 @@
 import streamlit as st
 import pandas as pd
-from sqlalchemy import create_engine
 
-def page2():
+
+def page():
     st.title("👮🏻 Chicago Crimes 2023")
-    
+
     # Section explaining the dashboard with increased font size
     st.markdown("""
     <p style='font-size: 18px;'>This dashboard is an essential tool for visualizing and analyzing crime data in Chicago. 
@@ -19,21 +19,22 @@ def page2():
 
     # Center the first image in the first column
     with col1:
-        st.image('https://i.ibb.co/SsTw7v4/police-line.gif', caption='Crime Visualization in Chicago', use_column_width=True)
+        st.image('https://i.ibb.co/SsTw7v4/police-line.gif', caption='Crime Visualization in Chicago',
+                 use_column_width=True)
 
     # Center the second image in the second column
     with col2:
         st.image('https://i.ibb.co/Wsfj35M/siren.gif', caption='Crime Visualization in Chicago', use_column_width=True)
-    
+
     # Table of column descriptions
     st.header("Column Descriptions of the Database")
     column_descriptions = {
         "Column Name": [
-            "ID", "Case Number", "Date", "Block", "IUCR", 
-            "Primary Type", "Description", "Location Description", 
-            "Arrest", "Domestic", "Beat", "District", 
-            "Ward", "Community Area", "FBI Code", "X Coordinate", 
-            "Y Coordinate", "Year", "Updated On", "Latitude", 
+            "ID", "Case Number", "Date", "Block", "IUCR",
+            "Primary Type", "Description", "Location Description",
+            "Arrest", "Domestic", "Beat", "District",
+            "Ward", "Community Area", "FBI Code", "X Coordinate",
+            "Y Coordinate", "Year", "Updated On", "Latitude",
             "Longitude", "Location"
         ],
         "Description": [
@@ -78,26 +79,14 @@ def page2():
     }
     column_df = pd.DataFrame(column_descriptions)
     st.table(column_df)
-    
+
     # Load and display the data from the database
     st.header("Chicago Crime Data")
-    
-    # Database connection parameters
-    db_host = 'localhost'
-    db_user = 'root'
-    db_password = 'WmEo.1739'
-    db_database = 'chicagocrimes'
-    db_port = 3306
 
-    # Create connection string using pymysql
-    connection_string = f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_database}'
-    engine = create_engine(connection_string)
-    
     # Fetch data from the database
     query = "SELECT * FROM crimes"  # Replace 'crimes' with the actual table name
-    data = pd.read_sql(query, engine)
-    
+    data = pd.read_sql(query, st.session_state.db)
+
     st.dataframe(data)
 
-if __name__ == "__main__":
-    page2()
+page()

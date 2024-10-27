@@ -1,29 +1,39 @@
 import streamlit as st
+from sqlalchemy import create_engine
 
-# Importar las páginas
-from page1 import page1
-from page2 import page2
+
+def connect_db():
+    db_host = 'localhost'
+    db_user = 'root'
+    db_password = 'WmEo.1739'
+    db_database = 'chicagocrimes'
+    db_port = 3306
+
+    # Create connection string using pymysql
+    connection_string = f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_database}'
+    return create_engine(connection_string)
+
 
 def main():
+    if 'db' not in st.session_state:
+        print("Initializing database connection...")
+        st.session_state.db = connect_db()
+
     # Crear una barra de navegación
-    pages = {
-        "Explaining": page2,
-        "Dashboard": page1
-    }
+    pages = [
+        st.Page("views/dashboard.py", title="Dashboard"),
+        st.Page("views/about.py", title="About"),
+    ]
+
     st.set_page_config(
         page_title="Chicago Crimes 2023",
         page_icon="👮🏻",
         layout="wide",
         initial_sidebar_state="expanded"
     )
-    with st.sidebar:
-        
-        
-        st.title('👮🏻 Chicago Crimes 2023')
-        selected_page = st.sidebar.selectbox("Select a page", options=list(pages.keys()))
 
-    # Ejecutar la función de la página seleccionada
-    pages[selected_page]()
+    pg = st.navigation(pages)
+    pg.run()
 
 if __name__ == "__main__":
     main()

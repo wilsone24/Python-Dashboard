@@ -1,25 +1,12 @@
 import streamlit as st
-import streamlit as st
 import pandas as pd
-import numpy as np
-import altair as alt
-from sqlalchemy import create_engine
 import pydeck as pdk
 import plotly.express as px
 from streamlit_extras.metric_cards import style_metric_cards
 
-def page1():
-    db_host = 'localhost'
-    db_user = 'root'
-    db_password = 'WmEo.1739'
-    db_database = 'chicagocrimes'
-    db_port = 3306
 
-    # Create connection string using pymysql
-    connection_string = f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_database}'
-    engine = create_engine(connection_string)
-
-
+def page():
+    engine = st.session_state.db
 
     # Page styling
     st.markdown(""" 
@@ -51,12 +38,12 @@ def page1():
     fbi_codes = df_fbicodes['FbiCode'].tolist()
     lo_des = df_lodes['LocationDescription'].tolist()
 
-        
     colfilter = st.columns((1, 1, 1), gap='medium')
     with colfilter[0]:
         selected_fbi_code = st.selectbox("Select an FBI Code Type", ['No Selection'] + fbi_codes)
     with colfilter[1]:
-        selected_dom_arres = st.multiselect("Select Types of Crimes to Display",["Arrest", "Domestic", "No Selection"],default=["No Selection"])
+        selected_dom_arres = st.multiselect("Select Types of Crimes to Display", ["Arrest", "Domestic", "No Selection"],
+                                            default=["No Selection"])
     with colfilter[2]:
         selected_location_description = st.selectbox("Select a Location Type:", ['No Selection'] + lo_des)
     filters = []
@@ -82,7 +69,6 @@ def page1():
     else:
         filters.append("Arrest = 0")
         filters.append("Domestic = 0")
-
 
     where_clause = " AND ".join(filters)
     if where_clause:
@@ -213,9 +199,6 @@ def page1():
     color_map = {crime: [i * 25 % 255, i * 50 % 255, i * 75 % 255] for i, crime in enumerate(crime_types)}
     df_map1['color'] = df_map1['PrimaryType'].map(color_map)
 
-    print(df_crimes_by_month)
-    st.snow()
-
     # Metrics Display
     col0 = st.columns((1, 1), gap='medium')
     col0[0].metric(label="Total Crimes", value=count_1, delta="-------")
@@ -241,15 +224,15 @@ def page1():
             font_color='black',
             xaxis_title="Crime Count",
             yaxis_title="Crime Type",
-            margin={"r":0,"t":40,"l":0,"b":0}
+            margin={"r": 0, "t": 40, "l": 0, "b": 0}
         )
         st.plotly_chart(fig, use_container_width=True)
 
     with col1[1]:
         fig = px.bar(
-            df_bar1, 
-            x='District', 
-            y='crime_count', 
+            df_bar1,
+            x='District',
+            y='crime_count',
             color='crime_type',
             title='Total Crimes by District and Crime Type',
             labels={'District': 'District', 'crime_count': 'Crime Count', 'crime_type': 'Crime Type'},
@@ -257,7 +240,7 @@ def page1():
             color_discrete_sequence=px.colors.sequential.Plasma
         )
         fig.update_layout(
-            template='plotly_dark', 
+            template='plotly_dark',
             xaxis_title="District",
             yaxis_title="Crime Count",
             legend_title="Crime Type",
@@ -287,7 +270,8 @@ def page1():
             xaxis=dict(showgrid=True, gridcolor='lightgray', gridwidth=0.5),
             yaxis=dict(showgrid=True, gridcolor='lightgray', gridwidth=0.5)
         )
-        fig.update_traces(marker=dict(size=10, opacity=0.8, line=dict(width=1, color='lightgray')), selector=dict(mode='markers'))
+        fig.update_traces(marker=dict(size=10, opacity=0.8, line=dict(width=1, color='lightgray')),
+                          selector=dict(mode='markers'))
         st.plotly_chart(fig, use_container_width=True)
 
     with col2[1]:
@@ -351,7 +335,7 @@ def page1():
             color='crime_count',
             color_continuous_scale=px.colors.sequential.Viridis
         )
-        
+
         # Configurar el diseño de la gráfica
         fig_monthly_crimes.update_layout(
             plot_bgcolor='white',
@@ -359,11 +343,11 @@ def page1():
             font_color='black',
             xaxis_title="Month",
             yaxis_title="Number of Crimes",
-            margin={"r":0,"t":40,"l":0,"b":0}
+            margin={"r": 0, "t": 40, "l": 0, "b": 0}
         )
-        
+
         # Mostrar la gráfica en el dashboard
         st.plotly_chart(fig_monthly_crimes, use_container_width=True)
-    
-if __name__ == "__main__":
-    page1()
+
+
+page()
