@@ -6,7 +6,6 @@ def page2():
     st.title("👮🏻 Chicago Crimes 2023")
     
     # Section explaining the dashboard with increased font size
-    st.markdown("About the Dashboard", unsafe_allow_html=True)
     st.markdown("""
     <p style='font-size: 18px;'>This dashboard is an essential tool for visualizing and analyzing crime data in Chicago. 
     It allows users to understand the distribution and frequency of crimes in different areas, 
