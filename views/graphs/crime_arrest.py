@@ -7,7 +7,6 @@ async def graph(data):
         x='crime_count',
         y='arrest_count',
         color='PrimaryType',
-        title='Crime and Arrest Correlation',
         labels={'crime_count': 'Crime Count', 'arrest_count': 'Arrest Count', 'PrimaryType': 'Crime Type'},
         color_discrete_sequence=px.colors.sequential.Viridis
     )

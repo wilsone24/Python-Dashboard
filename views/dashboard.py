@@ -228,14 +228,20 @@ def page():
 
     # Bar Charts
     col1 = st.columns((1, 1), gap='medium')
+    with col1[0]:
+        st.subheader("Most Common Crime Types in Chicago")
     cct = asyncio.create_task(common_crimes.graph(df_bar2))
     cct.add_done_callback(lambda cc: render_soon(dispatcher, col1[0], plotly_renderer, cc))
 
+    with col1[1]:
+        st.subheader("Total Crimes by District and Crime Type")
     tbdt = asyncio.create_task(type_by_district.graph(df_bar1))
     tbdt.add_done_callback(lambda tbd: render_soon(dispatcher, col1[1], plotly_renderer, tbd))
 
     # Scatter Plot
     col2 = st.columns((1, 1), gap='medium')
+    with col2[0]:
+        st.subheader("Crime and Arrest Correlation")
     spt = asyncio.create_task(crime_arrest.graph(df_graph_scatter))
     spt.add_done_callback(lambda sp: render_soon(dispatcher, col2[0], plotly_renderer, sp))
 

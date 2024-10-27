@@ -6,7 +6,6 @@ async def graph(data):
         data,
         x='crime_count',
         y='PrimaryType',
-        title='Most Common Crime Types in Chicago',
         labels={'crime_count': 'Crime Count'},
         orientation='h',
         color='crime_count',
