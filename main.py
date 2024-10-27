@@ -22,8 +22,8 @@ async def main():
 
     # Crear una barra de navegación
     pages = [
-        st.Page("views/about.py", title="About"),
-        st.Page("views/dashboard.py", title="Dashboard"),
+        st.Page("views/about.py", title="About", icon=":material/info:"),
+        st.Page("views/dashboard.py", title="Dashboard", icon=":material/monitoring:"),
     ]
 
     st.set_page_config(
