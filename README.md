@@ -16,7 +16,7 @@ An interactive dashboard for analyzing and visualizing crime data in the city of
 
 - 📊 Interactive visualization of crime types, locations, and time trends.
 - 🌍 Geospatial maps for regional analysis.
-- 🔎 Data filtering by crime type, year, and location.
+- 🔎 Data filtering by FBI code, crime location description or crime type.
 - 📈 Bar and line charts to identify patterns and compare categories.
 
 ## 📑 Dashboard Pages
