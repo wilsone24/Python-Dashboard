@@ -83,6 +83,7 @@ For a full list of dependencies, please check the `requirements.txt` file.
 
 For a complete demonstration of the dashboard, watch the following video:
 
+[YOutubeVideo](https://youtu.be/VJGfD6h6tps)
 
 ## 🤝 Contributing
 
