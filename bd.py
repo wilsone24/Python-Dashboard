@@ -1,6 +1,11 @@
+import os
+
 import pandas as pd
 import mysql.connector
+from dotenv import load_dotenv
 from mysql.connector import Error
+
+load_dotenv()
 
 # Leer el archivo CSV
 df = pd.read_csv('Crimes2023.csv')
@@ -11,11 +16,12 @@ df['Updated On'] = pd.to_datetime(df['Updated On'], format='%m/%d/%Y %I:%M:%S %p
 # Reemplazar valores NaN por None y verificar si hay columnas que no coinciden
 df = df.where(pd.notnull(df), None)
 print(df.head())
+
 # Configuración de conexión a MySQL
 db_config = {
-    'host': 'localhost',
-    'user': 'root',  # Cambiado a root
-    'password': 'WmEo.1739',  # Contraseña actualizada
+    'host': os.environ.get("DB_HOST"),
+    'user': os.environ.get("DB_USER"),
+    'password': os.environ.get("DB_PASSWORD")
 }
 
 connection = None
@@ -26,11 +32,12 @@ try:
     
     if connection.is_connected():
         cursor = connection.cursor()
-        
+
         # Crear base de datos si no existe
-        cursor.execute("CREATE DATABASE IF NOT EXISTS chicagocrimes")
-        cursor.execute("USE chicagocrimes")
-        print("Base de datos 'chicagocrimes' lista para usar.")
+        db_name = os.environ.get("DB_NAME") or "chicagocrimes"
+        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
+        cursor.execute(f"USE {db_name}")
+        print(f"Base de datos '{db_name}' lista para usar.")
         
         # Crear tabla
         create_table_query = """

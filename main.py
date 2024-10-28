@@ -1,14 +1,19 @@
 import asyncio
+import os
+
 import streamlit as st
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def connect_db():
-    db_host = 'localhost'
-    db_user = 'root'
-    db_password = 'WmEo.1739'
-    db_database = 'chicagocrimes'
-    db_port = 3306
+    db_host = os.environ.get("DB_HOST")
+    db_user = os.environ.get("DB_USER")
+    db_password = os.environ.get("DB_PASSWORD")
+    db_database = os.environ.get("DB_NAME") or "chicagocrimes"
+    db_port = os.environ.get("DB_PORT") or 3306
 
     # Create connection string using pymysql
     connection_string = f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_database}'
