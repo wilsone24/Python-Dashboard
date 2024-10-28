@@ -220,6 +220,7 @@ def page():
     color_map = {crime: [i * 25 % 255, i * 50 % 255, i * 75 % 255] for i, crime in enumerate(crime_types)}
     df_map1['color'] = df_map1['PrimaryType'].map(color_map)
 
+    st.snow()
     # Metrics Display
     col0 = st.columns((1, 1), gap='medium')
     col0[0].metric(label="Total Crimes", value=count_1, delta="-------")
