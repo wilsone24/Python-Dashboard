@@ -1,4 +1,3 @@
-
 # Chicago Crime Dashboard 🌆
 
 <div align="center">
@@ -9,7 +8,7 @@
 
 An interactive dashboard for analyzing and visualizing crime data in the city of Chicago.
 
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Contributing](#contributing) • [License](#license)
+[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Contributing](#-contributing) • [License](#-license)
 
 </div>
 
@@ -25,12 +24,8 @@ An interactive dashboard for analyzing and visualizing crime data in the city of
 The Chicago Crime Dashboard includes two main pages to help users explore and understand the data more effectively:
 
 1. **Introduction Page**: Explains the importance and context of analyzing crime data in Chicago. This page includes a brief overview of the data sources, purpose, and how the dashboard aids in making informed decisions.
-   
-   ![Introduction Page Screenshot](images/introduction_page.png)
 
 2. **Dashboard Page**: Provides interactive visualizations and tools for analyzing crime data by type, location, and time. Users can apply filters, view geospatial maps, and explore various graphs to find patterns or trends in the data.
-
-   ![Dashboard Page Screenshot](images/dashboard_page.png)
 
 ## 🛠 Installation
 
@@ -66,8 +61,8 @@ streamlit run main.py
 
 ```
 chicago-crime-dashboard/
-├── app.py                       # Main entry point for the Streamlit dashboard
-├── pages/                       # Additional dashboard pages
+├── main.py                      # Main entry point for the Streamlit dashboard
+├── views/                       # Project pages
 ├── Crimes2023.csv               # Dataset
 ├── requirements.txt             # Project dependencies
 └── README.md                    # Project documentation
